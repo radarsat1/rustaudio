@@ -1830,11 +1830,12 @@ struct JackHandle {
   std::string deviceName[2];
   bool xrun[2];
   pthread_cond_t condition;
+  pthread_t stopThread;
   int drainCounter;       // Tracks callback counts when draining
   bool internalDrain;     // Indicates if stop is initiated from callback or not.
 
   JackHandle()
-    :client(0), drainCounter(0), internalDrain(false) { ports[0] = 0; ports[1] = 0; xrun[0] = false; xrun[1] = false; }
+    :client(0), drainCounter(0), internalDrain(false), stopThread(0) { ports[0] = 0; ports[1] = 0; xrun[0] = false; xrun[1] = false; }
 };
 
 static void jackSilentError( const char * ) {};
@@ -2292,6 +2293,13 @@ void RtApiJack :: closeStream( void )
     if ( stream_.state == STREAM_RUNNING )
       jack_deactivate( handle->client );
 
+    if ( handle->stopThread )
+    {
+      // This is signaled by jackStopStream()
+      pthread_join( handle->stopThread, 0 );
+      handle->stopThread = 0;
+    }
+
     jack_client_close( handle->client );
   }
 
@@ -2463,11 +2471,14 @@ bool RtApiJack :: callbackEvent( unsigned long nframes )
 
   // Check if we were draining the stream and signal is finished.
   if ( handle->drainCounter > 3 ) {
-    ThreadHandle threadId;
-
     stream_.state = STREAM_STOPPING;
     if ( handle->internalDrain == true )
-      jackStopStream(info);
+      if ( handle->stopThread == 0 ) {
+        if ( pthread_create( &handle->stopThread, NULL,
+                             jackStopStream, info ) )
+          handle->stopThread = 0;
+      }
+      else { /* stream already stopping, nothing to do */ }
     else
       pthread_cond_signal( &handle->condition );
     return SUCCESS;
@@ -2491,8 +2502,12 @@ bool RtApiJack :: callbackEvent( unsigned long nframes )
     if ( cbReturnValue == 2 ) {
       stream_.state = STREAM_STOPPING;
       handle->drainCounter = 2;
-      ThreadHandle id;
-      pthread_create( &id, NULL, jackStopStream, info );
+      if ( handle->stopThread == 0 ) {
+        if ( pthread_create( &handle->stopThread, NULL,
+                             jackStopStream, info ) )
+          handle->stopThread = 0;
+      }
+      else { /* stream already stopping, nothing to do */ }
       return SUCCESS;
     }
     else if ( cbReturnValue == 1 ) {
