@@ -2467,7 +2467,7 @@ bool RtApiJack :: callbackEvent( unsigned long nframes )
 
     stream_.state = STREAM_STOPPING;
     if ( handle->internalDrain == true )
-      pthread_create( &threadId, NULL, jackStopStream, info );
+      jackStopStream(info);
     else
       pthread_cond_signal( &handle->condition );
     return SUCCESS;
