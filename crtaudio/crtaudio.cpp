@@ -13,7 +13,7 @@ extern "C" {
 crtaudio *crtaudio_new()
 {
     stk::Stk::setSampleRate(48000);
-    return new stk::RtWvOut(1, stk::Stk::sampleRate(), 0);
+    return new stk::RtWvOut();
 }
 
 void crtaudio_free(crtaudio *rta)

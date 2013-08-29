@@ -7,11 +7,12 @@ CFLAGS := -fPIC $(DEFS)
 CXXFLAGS := -std=c++11 -fPIC $(DEFS)
 LDLIBS := -L. -lcrtaudio -ljack -lm
 
-test_crtaudio: test_crtaudio.o libcrtaudio.so
+crtaudio/test_crtaudio: crtaudio/test_crtaudio.o libcrtaudio.so
 
-libcrtaudio.so: crtaudio.o RtAudio.o Stk.o RtWvOut.o Mutex.o
+libcrtaudio.so: crtaudio/crtaudio.o crtaudio/RtAudio.o crtaudio/Stk.o	\
+	            crtaudio/RtWvOut.o crtaudio/Mutex.o
 	$(CXX) -shared -o $@ $^
 
 .PHONY: clean
 clean:
-	-@rm -vf crtaudio.o RtAudio.o libcrtaudio.so test_crtaudio.o test_crtaudio
+	-@rm -vf crtaudio/*.o libcrtaudio.so crtaudio/test_crtaudio
