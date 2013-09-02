@@ -7,7 +7,7 @@ mod _crtaudio {
     use std::libc::{c_float,c_void};
     pub type crtaudio = *c_void;
 
-    #[link_args = "-lcrtaudio -ljack"]
+    #[link_args = "-lcrtaudio -lasound"]
     extern {
         fn crtaudio_new() -> crtaudio;
         fn crtaudio_free(rta: crtaudio);

@@ -3,10 +3,10 @@ CC := gcc
 CXX := g++
 RUSTC := rustc
 
-DEFS := -D__UNIX_JACK__ -D__LITTLE_ENDIAN__
-CFLAGS := -fPIC $(DEFS)
-CXXFLAGS := -std=c++11 -fPIC $(DEFS)
-LDLIBS := -L. -lcrtaudio -ljack -lm
+DEFS := -D__LINUX_ALSA__ -D__LITTLE_ENDIAN__
+CFLAGS := -fPIC $(DEFS) -O0 -g
+CXXFLAGS := -std=c++11 -fPIC $(DEFS) -O0 -g
+LDLIBS := -L. -lcrtaudio -lasound -lm
 
 all: crtaudio/test_crtaudio sin440
 
@@ -17,7 +17,7 @@ crtaudio/test_crtaudio: crtaudio/test_crtaudio.o libcrtaudio.so
 
 libcrtaudio.so: crtaudio/crtaudio.o crtaudio/RtAudio.o crtaudio/Stk.o	\
 	            crtaudio/RtWvOut.o crtaudio/Mutex.o
-	$(CXX) -shared -o $@ $^
+	$(CXX) -shared -o $@ $^ -lasound
 
 .PHONY: all clean
 clean:
