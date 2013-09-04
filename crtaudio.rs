@@ -15,25 +15,29 @@ mod _crtaudio {
     }
 }
 
-type crtaudio = _crtaudio::crtaudio;
-
-#[fixed_stack_segment]
-#[inline(never)]
-pub fn crtaudio_new() -> crtaudio
-{
-    unsafe { return _crtaudio::crtaudio_new(); }
+struct CRtAudio {
+    handle: _crtaudio::crtaudio
 }
 
-#[fixed_stack_segment]
-#[inline(never)]
-pub fn crtaudio_free(rta: crtaudio)
-{
-    unsafe { _crtaudio::crtaudio_free(rta); }
+impl CRtAudio {
+    #[fixed_stack_segment]
+    #[inline(never)]
+    pub fn new() -> CRtAudio {
+        CRtAudio { handle: unsafe { _crtaudio::crtaudio_new() } }
+    }
+
+    #[fixed_stack_segment]
+    #[inline(never)]
+    pub fn tick(&self, sample: float) {
+        unsafe { _crtaudio::crtaudio_tick(self.handle,
+                                          sample as c_float) };
+    }
 }
 
-#[fixed_stack_segment]
-#[inline(never)]
-pub fn crtaudio_tick(rta: crtaudio, sample: float)
-{
-    unsafe { _crtaudio::crtaudio_tick(rta, sample as c_float); }
+impl Drop for CRtAudio {
+    #[fixed_stack_segment]
+    #[inline(never)]
+    fn drop(&self) {
+        unsafe { _crtaudio::crtaudio_free(self.handle); }
+    }
 }
