@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "crtaudio.h"
+#include <unistd.h>
 
 int main()
 {
