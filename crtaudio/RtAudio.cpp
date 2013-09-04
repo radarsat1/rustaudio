@@ -5212,8 +5212,8 @@ unsigned int RtApiAlsa :: getDeviceCount( void )
         break;
       nDevices++;
     }
-  nextcard:
     snd_ctl_close( handle );
+  nextcard:
     snd_card_next( &card );
   }
 

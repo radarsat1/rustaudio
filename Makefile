@@ -6,7 +6,7 @@ RUSTC := rustc
 DEFS := -D__LINUX_ALSA__ -D__LITTLE_ENDIAN__
 CFLAGS := -fPIC $(DEFS) -O0 -g
 CXXFLAGS := -std=c++11 -fPIC $(DEFS) -O0 -g
-LDLIBS := -L. -lcrtaudio -lasound -lm
+LDLIBS := -L. -lcrtaudio -lm
 
 all: crtaudio/test_crtaudio sin440
 
