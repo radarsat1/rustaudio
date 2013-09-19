@@ -6,19 +6,18 @@
 use std::num::sin;
 use std::rt::io::Timer;
 use std::io::println;
-use std::task::{spawn,deschedule};
-use std::comm::{stream,Port,Chan,SharedChan};
+use std::task::{spawn_with,deschedule};
+use std::comm::{stream,Port,Chan};
 
 mod crtaudio;
 
 fn main() {
-    let (out_port,in_port): (Port<int>, Chan<int>) = stream();
-    let shared_in_port = SharedChan::new(in_port);
+    let (in_port,out_port): (Port<int>, Chan<int>) = stream();
 
     /* Audio is processed on a background thread, while must manually
      * yield after each sample. */
 
-    do spawn() {
+    do spawn_with(in_port) |in_port| {
         let rta = crtaudio::CRtAudio::new();
         let mut i = 0;
         while (i != -1) {
@@ -31,8 +30,8 @@ fn main() {
                 i += 1;
             }
 
-            if (out_port.peek()) {
-                out_port.try_recv().map_move(|x| { i = x });
+            if (in_port.peek()) {
+                in_port.try_recv().map_move(|x| { i = x });
             }
 
             rta.tick( sample );
@@ -46,12 +45,12 @@ fn main() {
     let mut k=1;
     while (k <= 3) {
         println(fmt!("%d",k));
-        shared_in_port.send(0);
+        out_port.send(0);
         do Timer::new().map_move |mut t| { t.sleep(1000) };
         k += 1;
     }
 
     /* A value of -1 signals the end of the program to the audio task. */
 
-    shared_in_port.send(-1);
+    out_port.send(-1);
 }
