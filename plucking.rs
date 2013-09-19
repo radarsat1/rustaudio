@@ -31,7 +31,10 @@ fn main() {
             }
 
             if (in_port.peek()) {
-                in_port.try_recv().map_move(|x| { i = x });
+                match (in_port.try_recv()) {
+                    Some(x) => { i = x }
+                    None => { i = -1 }
+                }
             }
 
             rta.tick( sample );
