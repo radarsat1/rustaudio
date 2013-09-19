@@ -8,9 +8,12 @@ CFLAGS := -fPIC $(DEFS) -O0 -g
 CXXFLAGS := -std=c++11 -fPIC $(DEFS) -O0 -g
 LDLIBS := -L. -lcrtaudio -lm
 
-all: crtaudio/test_crtaudio sin440
+all: crtaudio/test_crtaudio sin440 plucking
 
 sin440: sin440.rs crtaudio.rs libcrtaudio.so
+	$(RUSTC) $<
+
+plucking: plucking.rs crtaudio.rs libcrtaudio.so
 	$(RUSTC) $<
 
 crtaudio/test_crtaudio: crtaudio/test_crtaudio.o libcrtaudio.so
