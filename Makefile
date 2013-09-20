@@ -8,8 +8,9 @@ CFLAGS := -fPIC $(DEFS) -O0 -g
 CXXFLAGS := -std=c++11 -fPIC $(DEFS) -O0 -g
 LDLIBS := -L. -lcrtaudio -lm
 
-all: crtaudio/test_crtaudio sin440 plucking plucking_function	\
-     plucking_ugen
+PROGS := sin440 plucking plucking_function plucking_ugen
+
+all: crtaudio/test_crtaudio $(PROGS)
 
 sin440: sin440.rs crtaudio.rs libcrtaudio.so
 	$(RUSTC) $<
@@ -25,4 +26,4 @@ libcrtaudio.so: crtaudio/crtaudio.o crtaudio/RtAudio.o crtaudio/Stk.o	\
 
 .PHONY: all clean
 clean:
-	-@rm -vf *.o crtaudio/*.o libcrtaudio.so crtaudio/test_crtaudio sin440
+	-@rm -vf *.o crtaudio/*.o libcrtaudio.so crtaudio/test_crtaudio $(PROGS)
