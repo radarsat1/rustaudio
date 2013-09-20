@@ -37,7 +37,7 @@ impl CRtAudio {
 impl Drop for CRtAudio {
     #[fixed_stack_segment]
     #[inline(never)]
-    fn drop(&self) {
+    fn drop(&mut self) {
         unsafe { _crtaudio::crtaudio_free(self.handle); }
     }
 }
