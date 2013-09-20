@@ -4,9 +4,10 @@
  * re-triggers them periodically. */
 
 /* In this version, the "unit generator" is encapsulated as a
- * coroutine implemented using a task and communication channel.
- * Although it sort of works, it seems to have timing issues and
- * results in buffer underruns. */
+ * coroutine implemented using a task and communication channel.  The
+ * communication channel is used to pass audio vectors of several
+ * samples, which seems to be efficient enough for this to run in real
+ * time. */
 
 use std::num::sin;
 use std::rt::io::Timer;

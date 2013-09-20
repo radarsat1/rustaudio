@@ -9,7 +9,7 @@ CXXFLAGS := -std=c++11 -fPIC $(DEFS) -O0 -g
 LDLIBS := -L. -lcrtaudio -lm
 
 PROGS := sin440 plucking plucking_function plucking_ugen	\
-		 plucking_task
+		 plucking_task plucking_task_vector
 
 all: crtaudio/test_crtaudio $(PROGS)
 
