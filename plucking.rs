@@ -44,12 +44,10 @@ fn main() {
     /* Reset the audio task's `i` variable, re-triggering a pluck
      * sound once a second. */
 
-    let mut k=0;
-    while (k <= 3) {
+    for k in range(0,4) {
         do Timer::new().map_move |mut t| { t.sleep(1000) };
         println(fmt!("%d",k));
         out_port.send(0);
-        k += 1;
     }
 
     /* A value of -1 signals the end of the program to the audio task. */
