@@ -2,7 +2,7 @@
 # Info
 
 Just testing some audio generation code in Rust.
-Used RtAudio with Jack to wrap the sound system.
+Used RtAudio with ALSA to wrap the sound system.
 Runs on Linux, requires rustc.
 
 Steve Sinclair <radarsat1@gmail.com>
