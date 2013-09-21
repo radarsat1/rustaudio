@@ -8,8 +8,8 @@ CFLAGS := -fPIC $(DEFS) -O0 -g
 CXXFLAGS := -std=c++11 -fPIC $(DEFS) -O0 -g
 LDLIBS := -L. -lcrtaudio -lm
 
-PROGS := sin440 plucking plucking_function plucking_ugen	\
-		 plucking_task plucking_task_vector
+PROGS := sin440 plucking plucking_function plucking_ugen		\
+		 plucking_task plucking_task_vector plucking_coroutine
 
 all: crtaudio/test_crtaudio $(PROGS)
 
@@ -17,6 +17,9 @@ sin440: sin440.rs crtaudio.rs libcrtaudio.so
 	$(RUSTC) $<
 
 %: %.rs crtaudio.rs libcrtaudio.so
+	$(RUSTC) $<
+
+plucking_coroutine: plucking_coroutine.rs crtaudio.rs coroutine.rs libcrtaudio.so
 	$(RUSTC) $<
 
 crtaudio/test_crtaudio: crtaudio/test_crtaudio.o libcrtaudio.so
