@@ -11,7 +11,6 @@
 
 use std::num::sin;
 use std::rt::io::Timer;
-use std::io::println;
 use std::task::{spawn_sched,SingleThreaded};
 use std::comm::{stream,Port,Chan};
 
@@ -26,14 +25,14 @@ enum UGenCommand {
     Quit,
 }
 
-type AudioVector = ~([float]);
+type AudioVector = ~([f32]);
 
 type UGenInput = (UGenCommand, AudioVector);
 
 /* Return a coroutine that yields decaying sinusoid samples.  Can be
  * sent a command to re-trigger the decay. */
-fn sinusoid(freq: float, length: int, rate: int, buffer: AudioVector)
-            -> ~fn:Send((UGenCommand,~[float])) -> ~[float] {
+fn sinusoid(freq: f32, length: int, rate: int, buffer: AudioVector)
+            -> ~fn:Send((UGenCommand,~[f32])) -> ~[f32] {
     coroutine((freq, length, rate, buffer),
         |(freq, length, rate, buffer), coyield| {
             let mut time_idx = length;
@@ -42,10 +41,10 @@ fn sinusoid(freq: float, length: int, rate: int, buffer: AudioVector)
             loop {
                 for s in samples.mut_iter() {
                     let power =
-                        (std::int::max(length - time_idx, 0) as float)
-                        / (length as float);
+                        (std::int::max(length - time_idx, 0) as f32)
+                        / (length as f32);
 
-                    let time = (time_idx as float) / (rate as float);
+                    let time = (time_idx as f32) / (rate as f32);
 
                     *s = sin(time * 6.28 * freq) * power * power;
 
@@ -75,8 +74,8 @@ fn main() {
     do spawn_sched(SingleThreaded) {
         let rta = crtaudio::CRtAudio::new();
 
-        let buffer1 = ~[0.0f, ..1024];
-        let mut buffer = ~[0.0f, ..1024];
+        let buffer1 = ~[0.0f32, ..1024];
+        let mut buffer = ~[0.0f32, ..1024];
         let ugen = sinusoid(440.0, 10000, 48000, buffer1);
 
         loop {
@@ -109,13 +108,13 @@ fn main() {
      * sound once a second. */
 
     for k in range(0,4) {
-        do Timer::new().map_move |mut t| { t.sleep(1000) };
-        println(fmt!("%d",k));
+        do Timer::new().map |mut t| { t.sleep(1000) };
+        println(format!("{:d}",k));
         out_port.send(Trigger);
     }
 
     /* Signal the end of the program to the audio task. */
 
-    do Timer::new().map_move |mut t| { t.sleep(1000) };
+    do Timer::new().map |mut t| { t.sleep(1000) };
     out_port.send(Quit);
 }

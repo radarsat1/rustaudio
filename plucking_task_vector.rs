@@ -11,7 +11,6 @@
 
 use std::num::sin;
 use std::rt::io::Timer;
-use std::io::println;
 use std::task::{spawn_sched,SingleThreaded,spawn_with};
 use std::comm::{stream,Port,Chan};
 
@@ -23,12 +22,12 @@ enum UGenCommand {
     Quit,
 }
 
-type AudioVector = ~([float]);
+type AudioVector = ~([f32]);
 
 type UGenInput = (UGenCommand, AudioVector);
 
 fn sinusoid(port: Port<UGenInput>, chan: Chan<AudioVector>,
-            freq: float, length: int, rate: int) {
+            freq: f32, length: int, rate: int) {
     let mut time_idx = length;
 
     loop {
@@ -44,10 +43,10 @@ fn sinusoid(port: Port<UGenInput>, chan: Chan<AudioVector>,
 
         for s in samples.mut_iter() {
             let power =
-                (std::int::max(length - time_idx, 0) as float)
-                / (length as float);
+                (std::int::max(length - time_idx, 0) as f32)
+                / (length as f32);
 
-            let time = (time_idx as float) / (rate as float);
+            let time = (time_idx as f32) / (rate as f32);
 
             *s = sin(time * 6.28 * freq) * power * power;
 
@@ -75,7 +74,7 @@ fn main() {
         do spawn_with((cmd_port, sample_chan)) |(cmd_port,sample_chan)|
             { sinusoid(cmd_port, sample_chan, 440.0, 10000, 48000) };
 
-        cmd_chan.send((NoCommand, ~[0.0f, ..1024]));
+        cmd_chan.send((NoCommand, ~[0.0f32, ..1024]));
 
         loop {
             let result = sample_port.recv();
@@ -105,13 +104,13 @@ fn main() {
      * sound once a second. */
 
     for k in range(0,4) {
-        do Timer::new().map_move |mut t| { t.sleep(1000) };
-        println(fmt!("%d",k));
+        do Timer::new().map |mut t| { t.sleep(1000) };
+        println(format!("{:d}",k));
         out_port.send(Trigger);
     }
 
     /* Signal the end of the program to the audio task. */
 
-    do Timer::new().map_move |mut t| { t.sleep(1000) };
+    do Timer::new().map |mut t| { t.sleep(1000) };
     out_port.send(Quit);
 }

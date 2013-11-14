@@ -11,14 +11,13 @@
 
 use std::num::sin;
 use std::rt::io::Timer;
-use std::io::println;
 use std::task::{spawn_sched,SingleThreaded};
 use std::comm::{stream,Port,Chan};
 
 mod crtaudio;
 
 trait UGen {
-    fn tick(&mut self) -> float;
+    fn tick(&mut self) -> f32;
 }
 
 trait UGenTrigger {
@@ -26,14 +25,14 @@ trait UGenTrigger {
 }
 
 struct PluckedSinusoid {
-    freq: float,
+    freq: f32,
     time_idx: int,
     length: int,
     rate: int,
 }
 
 impl PluckedSinusoid {
-    fn new(freq: float, length: int, rate: int) -> PluckedSinusoid {
+    fn new(freq: f32, length: int, rate: int) -> PluckedSinusoid {
         return PluckedSinusoid {
             freq: freq, time_idx: length, length: length, rate: rate
         }
@@ -41,12 +40,12 @@ impl PluckedSinusoid {
 }
 
 impl UGen for PluckedSinusoid {
-    fn tick(&mut self) -> float {
+    fn tick(&mut self) -> f32 {
         let power =
-            (std::int::max(self.length - self.time_idx, 0) as float)
-            / (self.length as float);
+            (std::int::max(self.length - self.time_idx, 0) as f32)
+            / (self.length as f32);
 
-        let time = (self.time_idx as float) / (self.rate as float);
+        let time = (self.time_idx as f32) / (self.rate as f32);
 
         let sample = sin(time * 6.28 * self.freq)
             * power * power;
@@ -96,13 +95,13 @@ fn main() {
      * sound once a second. */
 
     for k in range(0,4) {
-        do Timer::new().map_move |mut t| { t.sleep(1000) };
-        println(fmt!("%d",k));
+        do Timer::new().map |mut t| { t.sleep(1000) };
+        println(format!("{:d}",k));
         out_port.send(0);
     }
 
     /* A value of -1 signals the end of the program to the audio task. */
 
-    do Timer::new().map_move |mut t| { t.sleep(1000) };
+    do Timer::new().map |mut t| { t.sleep(1000) };
     out_port.send(-1);
 }

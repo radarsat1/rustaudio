@@ -10,7 +10,6 @@
 
 use std::num::sin;
 use std::rt::io::Timer;
-use std::io::println;
 use std::task::{spawn_sched,SingleThreaded,spawn_with};
 use std::comm::{stream,Port,Chan};
 
@@ -22,16 +21,16 @@ enum UGenCommand {
     Quit,
 }
 
-fn sinusoid(port: Port<UGenCommand>, chan: Chan<float>,
-            freq: float, length: int, rate: int) {
+fn sinusoid(port: Port<UGenCommand>, chan: Chan<f32>,
+            freq: f32, length: int, rate: int) {
     let mut time_idx = length;
 
     loop {
         let power =
-            (std::int::max(length - time_idx, 0) as float)
-            / (length as float);
+            (std::int::max(length - time_idx, 0) as f32)
+            / (length as f32);
 
-        let time = (time_idx as float) / (rate as float);
+        let time = (time_idx as f32) / (rate as f32);
 
         let sample = sin(time * 6.28 * freq)
             * power * power;
@@ -58,7 +57,7 @@ fn main() {
     do spawn_sched(SingleThreaded) {
         let rta = crtaudio::CRtAudio::new();
 
-        let (sample_port, sample_chan): (Port<float>, Chan<float>) = stream();
+        let (sample_port, sample_chan): (Port<f32>, Chan<f32>) = stream();
         let (cmd_port, cmd_chan): (Port<UGenCommand>, Chan<UGenCommand>) = stream();
 
         do spawn_with((cmd_port, sample_chan)) |(cmd_port,sample_chan)|
@@ -89,13 +88,13 @@ fn main() {
      * sound once a second. */
 
     for k in range(0,4) {
-        do Timer::new().map_move |mut t| { t.sleep(1000) };
-        println(fmt!("%d",k));
+        do Timer::new().map |mut t| { t.sleep(1000) };
+        println(format!("{:d}",k));
         out_port.send(Trigger);
     }
 
     /* Signal the end of the program to the audio task. */
 
-    do Timer::new().map_move |mut t| { t.sleep(1000) };
+    do Timer::new().map |mut t| { t.sleep(1000) };
     out_port.send(Quit);
 }

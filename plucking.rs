@@ -5,7 +5,6 @@
 
 use std::num::sin;
 use std::rt::io::Timer;
-use std::io::println;
 use std::task::{spawn_sched,SingleThreaded};
 use std::comm::{stream,Port,Chan};
 
@@ -24,8 +23,8 @@ fn main() {
             let mut sample = 0.0;
 
             if (i < 48000) {
-                let power = (std::int::max(10000-i, 0) as float)/10000.0 ;
-                sample = sin((i as float)/48000.0 * 2.0 * 3.14 * 440.0)
+                let power = (std::int::max(10000-i, 0) as f32)/10000.0 ;
+                sample = sin((i as f32)/48000.0 * 2.0 * 3.14 * 440.0)
                     * power * power;
                 i += 1;
             }
@@ -45,13 +44,13 @@ fn main() {
      * sound once a second. */
 
     for k in range(0,4) {
-        do Timer::new().map_move |mut t| { t.sleep(1000) };
-        println(fmt!("%d",k));
+        do Timer::new().map |mut t| { t.sleep(1000) };
+        println(format!("{:d}",k));
         out_port.send(0);
     }
 
     /* A value of -1 signals the end of the program to the audio task. */
 
-    do Timer::new().map_move |mut t| { t.sleep(1000) };
+    do Timer::new().map |mut t| { t.sleep(1000) };
     out_port.send(-1);
 }

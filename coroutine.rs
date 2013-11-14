@@ -25,13 +25,13 @@ pub fn coroutine<Tin:Send, Tout:Send, A:Send>(args: A, func: ~fn(A, ~fn(Tout)->T
 fn test_coroutines()
 {
     let sendto = coroutine(10,
-        |x: int, coyield: ~fn(float) -> int| {
-            let y = x as float;
-            println(fmt!("coroutine sending %f",y));
+        |x: int, coyield: ~fn(f32) -> int| {
+            let y = x as f32;
+            println(format!("coroutine sending {:f}",y));
             let z = coyield(y);
-            println(fmt!("coroutine got %d", z));
+            println(format!("coroutine got {:d}", z));
         });
 
     let x = sendto(20);
-    println(fmt!("main task sent 20, got %f", x));
+    println(format!("main task sent 20, got {:f}", x));
 }
